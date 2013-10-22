@@ -53,21 +53,20 @@ namespace All
 			bool self = args.Parameters.Count != 0 && args.Parameters[0] == "true";
 			if (self) args.Parameters.RemoveAt(0);
 			string Command = String.Join(" ", args.Parameters);
-			TSPlayer[] Players = TShock.Players;
-			if (!self) Players = Players.Where(player => (player != null) && (player.Index != args.Player.Index)).ToArray();
-			if (Command.Contains("@all") && Players.Length > 0)
+			List<TSPlayer> Players = TShock.Players.Where(player => (player != null)).ToList();
+			if (!self) Players = Players.Where(player => (player.Index != args.Player.Index)).ToList();
+			int Count = 0;
+			if (Command.Contains("@all") && Players.Count > 0)
 			{
-				foreach (TSPlayer player in TShock.Players)
+				foreach (TSPlayer player in Players)
 				{
-					try
-					{
-						var cmd = Command.Replace("@all", player.Name);
-						Commands.HandleCommand(args.Player, cmd);
-					}
-					catch { }
+					Count++;
+					var cmd = Command.Replace("@all", player.Name);
+					Commands.HandleCommand(args.Player, cmd);
 				}
+				args.Player.SendMessage("Affected " + Count + " players!", Color.PaleGoldenrod);
 			}
-			else if (Players.Length == 0) args.Player.SendMessage("No players matched.", Color.PaleGoldenrod);
+			else if (Players.Count == 0) args.Player.SendMessage("No players matched.", Color.PaleGoldenrod);
 			else args.Player.SendMessage("You must use @all inside your command.", Color.PaleGoldenrod);
 		}
 

@@ -12,7 +12,7 @@ namespace All
 	{
 		public override Version Version
 		{
-			get { return new Version("1.0.0.0"); }
+			get { return new Version("1.0.0.1"); }
 		}
 
 		public override string Name
@@ -27,7 +27,7 @@ namespace All
 
 		public override string Description
 		{
-			get { return "Adds /doall."; }
+			get { return "Adds /# and /$."; }
 		}
 
 		public All(Main game)
@@ -38,21 +38,22 @@ namespace All
 
 		public override void Initialize()
 		{
-			Commands.ChatCommands.Add(new Command("doall", DoAll, "doall"));
+			Commands.ChatCommands.Add(new Command("doall", DoAll, "#"));
+			Commands.ChatCommands.Add(new Command("doall", DoAll, "$"));
 		}
 
 		public void DoAll(CommandArgs args)
 		{
 			if (args.Parameters.Count < 1)
 			{
-				args.Player.SendMessage("Usage: /doall [true] /command @all", Color.PaleGoldenrod);
-				args.Player.SendMessage("If true is present before the command - the command will affect you as well.", Color.PaleGoldenrod);
+				args.Player.SendMessage("Usage: /[#,$] /command @all", Color.PaleGoldenrod);
+				args.Player.SendMessage("# - do command for all except you, $ - for all including you.", Color.PaleGoldenrod);
 				args.Player.SendMessage("You must use @all inside the command to reference all players.", Color.PaleGoldenrod);
 				return;
 			}
-			bool self = args.Parameters.Count != 0 && args.Parameters[0] == "true";
-			if (self) args.Parameters.RemoveAt(0);
-			string Command = String.Join(" ", args.Parameters);
+			bool self = args.Message.StartsWith("$ ");
+			string Command = args.Message.Replace("# ", "");
+			if (self) Command = args.Message.Replace("$ ", "");
 			List<TSPlayer> Players = TShock.Players.Where(player => (player != null)).ToList();
 			if (!self) Players = Players.Where(player => (player.Index != args.Player.Index)).ToList();
 			int Count = 0;

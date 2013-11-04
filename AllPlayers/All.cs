@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Linq;
 using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
-using System.Linq;
 
 namespace All
 {
@@ -12,7 +13,7 @@ namespace All
 	{
 		public override Version Version
 		{
-			get { return new Version("1.0.0.1"); }
+			get { return Assembly.GetExecutingAssembly().GetName().Version; }
 		}
 
 		public override string Name
@@ -40,6 +41,7 @@ namespace All
 		{
 			Commands.ChatCommands.Add(new Command("doall", DoAll, "#"));
 			Commands.ChatCommands.Add(new Command("doall", DoAll, "$"));
+			Commands.ChatCommands.Add(new Command("csudo", Sudo, "%"));
 		}
 
 		public void DoAll(CommandArgs args)
@@ -69,6 +71,26 @@ namespace All
 			}
 			else if (Players.Count == 0) args.Player.SendMessage("No players matched.", Color.PaleGoldenrod);
 			else args.Player.SendMessage("You must use @all inside your command.", Color.PaleGoldenrod);
+		}
+
+		public void Sudo(CommandArgs args)
+		{
+			if (args.Parameters.Count < 1 || args.Parameters[0] == "help")
+			{
+				args.Player.SendMessage("Usage: /% /command", Color.PaleGoldenrod);
+				args.Player.SendMessage("Executes command on Console's behalf.", Color.PaleGoldenrod);
+				return;
+			}
+			string Command = args.Message.Replace("% ", "");
+			try
+			{
+				Commands.HandleCommand(TSPlayer.Server, Command);
+				args.Player.SendMessage("Command succesful!", Color.PaleGoldenrod);
+			}
+			catch
+			{
+				args.Player.SendErrorMessage("Command failed.");
+			}
 		}
 
 	}

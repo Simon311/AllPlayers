@@ -8,7 +8,7 @@ using TShockAPI;
 
 namespace All
 {
-	[ApiVersion(1, 14)]
+	[ApiVersion(1, 15)]
 	public class All : TerrariaPlugin
 	{
 		public override Version Version
